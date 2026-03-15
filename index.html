@@ -1,99 +1,119 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABACUS: CHAMPION OF THE WORLD</title>
-    <style>
-        :root { --gold: #f1c40f; --neon-green: #00ff41; --bg-dark: #0a0a0a; }
-        body { margin: 0; background: var(--bg-dark); color: #fff; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; overflow: hidden; }
-        
-        /* オープニング画面 */
-        #opening {
-            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://r.jina.ai'); /* AI生成画像を背景に */
-            background-size: cover; background-position: center; transition: opacity 1s; padding-bottom: 15vh;
-        }
-        #start-btn {
-            background: #e67e22; color: #fff; border: 4px solid #fff; padding: 20px 50px;
-            font-size: 2.5rem; font-weight: bold; cursor: pointer; border-radius: 50px;
-            box-shadow: 0 0 30px rgba(230, 126, 34, 0.8); animation: pulse 2s infinite;
-        }
-
-        /* ゲームメイン画面 */
-        #game-screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        #question-display { font-size: 5rem; color: var(--gold); text-shadow: 0 0 25px var(--gold); margin: 20px 0; font-family: 'Courier New', monospace; }
-        #input-area { font-size: 4rem; background: transparent; border: none; border-bottom: 4px solid var(--gold); color: #fff; text-align: center; width: 80%; outline: none; }
-        
-        /* ステータス & ヒント */
-        #hud { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.2rem; color: var(--neon-green); }
-        #hint-box { margin-top: 30px; height: 50px; font-style: italic; color: #aaa; text-align: center; padding: 0 20px; }
-        
-        /* 必殺技ボタン */
-        .skill-container { position: absolute; bottom: 30px; display: flex; gap: 15px; }
-        .skill-btn { background: #333; border: 1px solid var(--gold); color: var(--gold); padding: 10px; border-radius: 5px; cursor: pointer; }
-
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .shake { animation: shake 0.3s; }
-        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(10px,0); } 75% { transform: translate(-10px,0); } }
-        .flash { background: #fff !important; transition: 0.1s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ABACUS: CHAMPION OF THE WORLD - 2D Edition</title>
+<style>
+    :root { --gold: #f1c40f; --neon-green: #00ff41; --bg-dark: #0a0a0a; }
+    body { margin: 0; background: var(--bg-dark); color: #fff; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; overflow: hidden; }
+    #opening { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://r.jina.ai'); background-size: cover; background-position: center; transition: opacity 1s; padding-bottom: 15vh; }
+    #start-btn { background: #e67e22; color: #fff; border: 4px solid #fff; padding: 20px 50px; font-size: 2.5rem; font-weight: bold; cursor: pointer; border-radius: 50px; box-shadow: 0 0 30px rgba(230, 126, 34, 0.8); animation: pulse 2s infinite; }
+    #game-screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    #question-display { font-size: 4rem; color: var(--gold); text-shadow: 0 0 25px var(--gold); margin: 10px 0; font-family: 'Courier New', monospace; }
+    #abacus-canvas-container { position:relative; width:350px; height:220px; background:#4a2c1a; border:8px solid #2d1b10; border-radius:10px; margin:10px auto; touch-action:none; }
+    #hud { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.2rem; color: var(--neon-green); }
+    #hint-box { height: 40px; font-style: italic; color: #aaa; text-align: center; }
+    .skill-container { display: flex; gap: 10px; margin-top: 10px; }
+    .skill-btn { background: #333; border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .shake { animation: shake 0.3s; }
+    @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(10px,0); } 75% { transform: translate(-10px,0); } }
+    .flash { background: #fff !important; transition: 0.1s; }
+</style>
 </head>
 <body>
 
-    <!-- 1. オープニング -->
-    <div id="opening">
-        <button id="start-btn" onclick="initGame()">START YOUR PATH</button>
+<div id="opening">
+    <button id="start-btn" onclick="initGame()">START YOUR PATH</button>
+</div>
+
+<div id="game-screen">
+    <div id="hud">
+        <div>SCORE: <span id="score">0</span></div>
+        <div>BEST: <span id="best">0</span></div>
+    </div>
+    <div id="question-label" style="color:#888;">願いましては〜！</div>
+    <div id="question-display">---</div>
+    
+    <!-- 2D 算盤キャンバス -->
+    <div id="abacus-canvas-container">
+        <div style="position:absolute; top:65px; width:100%; height:8px; background:#2d1b10;"></div>
+        <canvas id="abacus-canvas" width="350" height="220"></canvas>
     </div>
 
-    <!-- 2. ゲーム本編 -->
-    <div id="game-screen">
-        <div id="hud">
-            <div>MODE: <span id="mode-text">覇道</span></div>
-            <div>SCORE: <span id="score">0</span></div>
-            <div>BEST: <span id="best">0</span></div>
-        </div>
+    <div id="hint-box">玉を弾いて答えを作れ！</div>
+    <button class="skill-btn" style="background:var(--gold); color:#000; font-weight:bold;" onclick="checkAnswer()">ご名算！（解答）</button>
 
-        <div id="question-label" style="color:#888;">願いましては〜！</div>
-        <div id="question-display">---</div>
-        <input type="number" id="input-area" pattern="\d*" inputmode="numeric" placeholder="?">
-        
-        <div id="hint-box">...</div>
-
-        <div class="skill-container">
-            <button class="skill-btn" onclick="useSkill('india')">🇮🇳 ヴェーダ</button>
-            <button class="skill-btn" onclick="useSkill('samurai')">🇯🇵 五だま一閃</button>
-            <button class="skill-btn" onclick="useSkill('se')">💻 デバッグ</button>
-        </div>
+    <div class="skill-container">
+        <button class="skill-btn" onclick="useSkill('india')">🇮🇳 ヴェーダ</button>
+        <button class="skill-btn" onclick="useSkill('samurai')">🇯🇵 一閃</button>
+        <button class="skill-btn" onclick="useSkill('se')">💻 デバッグ</button>
     </div>
+</div>
 
 <script>
-let currentA, currentB, currentAns, score = 0;
+let currentA, currentB, currentAns, score = 0, beads = [];
+const canvas = document.getElementById('abacus-canvas');
+const ctx = canvas.getContext('2d');
 let bestScore = localStorage.getItem('abacusBest') || 0;
 document.getElementById('best').innerText = bestScore;
 
-// ゲーム開始処理
 function initGame() {
-    document.getElementById('opening').style.opacity = '0';
-    setTimeout(() => {
-        document.getElementById('opening').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'flex';
-        nextLevel();
-    }, 1000);
+    document.getElementById('opening').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'flex';
+    initBeads();
+    drawLoop();
+    nextLevel();
 }
 
-// 問題生成
+function initBeads() {
+    beads = [];
+    for(let i=0; i<7; i++) {
+        let x = 310 - i * 45; // 右から1の位
+        beads.push({x, y: 25, val: 5, active: false, type: 'top', digit: Math.pow(10, i)});
+        for(let j=0; j<4; j++) {
+            beads.push({x, y: 100 + j*28, val: 1, active: false, type: 'bottom', id: j, digit: Math.pow(10, i)});
+        }
+    }
+}
+
+function drawLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    beads.forEach(b => {
+        ctx.fillStyle = b.active ? '#f1c40f' : '#d35400';
+        ctx.beginPath();
+        ctx.ellipse(b.x, b.y, 20, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#2d1b10';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    });
+    requestAnimationFrame(drawLoop);
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const tx = e.clientX - rect.left;
+    const ty = e.clientY - rect.top;
+    beads.forEach(b => {
+        if (Math.hypot(b.x - tx, b.y - ty) < 25) {
+            b.active = !b.active;
+            if (b.type === 'top') b.y = b.active ? 50 : 25;
+            else b.y = b.active ? (78 + b.id*5) : (100 + b.id*28);
+            if (navigator.vibrate) navigator.vibrate(15);
+        }
+    });
+});
+
+function calculateCurrentValue() {
+    return beads.filter(b => b.active).reduce((sum, b) => sum + (b.val * b.digit), 0);
+}
+
 function nextLevel() {
-    const input = document.getElementById('input-area');
-    input.value = '';
-    input.focus();
-    
-    // スコアに応じて難易度上昇（終わりなき覇道モード）
     const range = 10 + Math.floor(score / 50);
     currentA = Math.floor(Math.random() * range) + 5;
     currentB = Math.floor(Math.random() * range) + 5;
-    
-    // 30%の確率で掛け算
     if (Math.random() > 0.7) {
         currentAns = currentA * currentB;
         document.getElementById('question-display').innerText = `${currentA} × ${currentB}`;
@@ -101,63 +121,47 @@ function nextLevel() {
         currentAns = currentA + currentB;
         document.getElementById('question-display').innerText = `${currentA} + ${currentB}`;
     }
+    resetAbacus(false);
 }
 
-// 解答入力イベント
-document.getElementById('input-area').addEventListener('keyup', (e) => {
-    if (e.key === 'Enter' || e.keyCode === 13) {
-        checkAnswer();
-    }
-});
-
 function checkAnswer() {
-    const userVal = parseInt(document.getElementById('input-area').value);
-    if (userVal === currentAns) {
+    if (calculateCurrentValue() === currentAns) {
         score += 100;
         document.getElementById('score').innerText = score;
-        if (score > bestScore) {
-            bestScore = score;
-            localStorage.setItem('abacusBest', bestScore);
-            document.getElementById('best').innerText = bestScore;
-        }
         document.getElementById('hint-box').innerText = "ご名算！パチパチパチ！";
         nextLevel();
     } else {
         document.body.classList.add('shake');
         setTimeout(() => document.body.classList.remove('shake'), 300);
-        document.getElementById('hint-box').innerText = "おっと、桁違いでございます！";
+        document.getElementById('hint-box').innerText = "おっと、玉の数が合いませぬ！";
     }
 }
 
-// 三賢者のヒント機能
+function resetAbacus(withEffect = true) {
+    beads.forEach(b => {
+        b.active = false;
+        b.y = (b.type === 'top') ? 25 : (100 + b.id*28);
+    });
+    if (withEffect) {
+        document.body.classList.add('flash');
+        setTimeout(() => document.body.classList.remove('flash'), 100);
+    }
+}
+
 function useSkill(type) {
     const box = document.getElementById('hint-box');
     if (type === 'india') box.innerText = `🇮🇳「${currentA}を10と${currentA-10}に分けて…」`;
-    if (type === 'samurai') {
-        document.body.classList.add('flash');
-        setTimeout(() => document.body.classList.remove('flash'), 100);
-        box.innerText = `🇯🇵「五だまの残像が見えたぞ！」`;
-    }
-    if (type === 'se') box.innerText = `💻「下1桁は ${currentAns % 10} と出ている。」`;
+    if (type === 'samurai') { resetAbacus(); box.innerText = `🇯🇵「ご破算で願いましては！」`; }
+    if (type === 'se') box.innerText = `💻「下1桁は ${currentAns % 10} です。」`;
 }
 
-// 傾きセンサー（ご破算）の実装
-let lastUpdate = 0;
-if (window.DeviceMotionEvent) {
-    window.addEventListener('devicemotion', (e) => {
-        const acc = e.accelerationIncludingGravity;
-        const curTime = new Date().getTime();
-        if ((curTime - lastUpdate) > 100) {
-            const speed = Math.abs(acc.x + acc.y + acc.z);
-            if (speed > 25) { // 強く振った時
-                document.getElementById('input-area').value = '';
-                document.getElementById('hint-box').innerText = "パチーン！ご破算でございます！";
-                if (navigator.vibrate) navigator.vibrate(200);
-            }
-            lastUpdate = curTime;
-        }
-    });
-}
+window.addEventListener('devicemotion', (e) => {
+    const acc = e.accelerationIncludingGravity;
+    if (acc && Math.abs(acc.x + acc.y + acc.z) > 25) {
+        resetAbacus();
+        document.getElementById('hint-box').innerText = "パチーン！ご破算！";
+    }
+});
 </script>
 </body>
 </html>
