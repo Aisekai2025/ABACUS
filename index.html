@@ -2,72 +2,162 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ABACUS: CHAMPION OF THE WORLD</title>
     <style>
-        body { margin: 0; background: #000; color: #fff; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; overflow: hidden; }
+        :root { --gold: #f1c40f; --neon-green: #00ff41; --bg-dark: #0a0a0a; }
+        body { margin: 0; background: var(--bg-dark); color: #fff; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; overflow: hidden; }
         
-        /* オープニング画面：画像の世界観を再現 */
+        /* オープニング画面 */
         #opening {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('YOUR_IMAGE_https://lens.usercontent.google.com/banana?agsi=CmdnbG9iYWw6OjAwMDA1NWNmZWM3MDAyNmQ6MDAwMDAwZWI6MTo4MzJhMzEzNmMzNTZkN2IzOjAwMDA1NWNmZWM3MDAyNmQ6MDAwMDAxNzMyMzcwMzM2ODowMDA2NGNmMzk1YjA0NGJmEAI=URL'); /* ここに生成した画像をセット */
-            background-size: cover; background-position: center;
             height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-            padding-bottom: 100px; transition: opacity 1s;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://r.jina.ai'); /* AI生成画像を背景に */
+            background-size: cover; background-position: center; transition: opacity 1s; padding-bottom: 15vh;
         }
-
         #start-btn {
-            background: #f39c12; color: #fff; border: 4px solid #fff; padding: 20px 40px;
-            font-size: 2rem; font-weight: bold; cursor: pointer; text-shadow: 2px 2px #000;
-            box-shadow: 0 0 20px #f39c12; border-radius: 10px; animation: pulse 2s infinite;
+            background: #e67e22; color: #fff; border: 4px solid #fff; padding: 20px 50px;
+            font-size: 2.5rem; font-weight: bold; cursor: pointer; border-radius: 50px;
+            box-shadow: 0 0 30px rgba(230, 126, 34, 0.8); animation: pulse 2s infinite;
         }
 
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
-        /* ゲーム本編：サイバー算盤道場 */
-        #game-screen {
-            display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center;
-            background: radial-gradient(circle, #1a1a1a, #000);
-        }
-
-        #abacus-light { font-size: 5rem; color: #f1c40f; text-shadow: 0 0 30px #f1c40f; margin-bottom: 30px; }
-        input { font-size: 3rem; background: transparent; border: none; border-bottom: 3px solid #f1c40f; color: #fff; text-align: center; outline: none; width: 300px; }
+        /* ゲームメイン画面 */
+        #game-screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        #question-display { font-size: 5rem; color: var(--gold); text-shadow: 0 0 25px var(--gold); margin: 20px 0; font-family: 'Courier New', monospace; }
+        #input-area { font-size: 4rem; background: transparent; border: none; border-bottom: 4px solid var(--gold); color: #fff; text-align: center; width: 80%; outline: none; }
         
-        /* 演出用 */
-        .fade-out { opacity: 0; pointer-events: none; }
+        /* ステータス & ヒント */
+        #hud { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.2rem; color: var(--neon-green); }
+        #hint-box { margin-top: 30px; height: 50px; font-style: italic; color: #aaa; text-align: center; padding: 0 20px; }
+        
+        /* 必殺技ボタン */
+        .skill-container { position: absolute; bottom: 30px; display: flex; gap: 15px; }
+        .skill-btn { background: #333; border: 1px solid var(--gold); color: var(--gold); padding: 10px; border-radius: 5px; cursor: pointer; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .shake { animation: shake 0.3s; }
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(10px,0); } 75% { transform: translate(-10px,0); } }
+        .flash { background: #fff !important; transition: 0.1s; }
     </style>
 </head>
 <body>
 
-    <!-- オープニングセクション -->
+    <!-- 1. オープニング -->
     <div id="opening">
-        <h1 style="font-size: 4rem; color: #f39c12; text-shadow: 3px 3px #000;">ABACUS</h1>
-        <p style="font-size: 1.5rem; margin-bottom: 30px;">CHAMPION OF THE WORLD</p>
-        <button id="start-btn" onclick="goToGame()">START YOUR PATH</button>
+        <button id="start-btn" onclick="initGame()">START YOUR PATH</button>
     </div>
 
-    <!-- ゲーム本編セクション -->
+    <!-- 2. ゲーム本編 -->
     <div id="game-screen">
-        <div id="status-bar" style="position:absolute; top:20px; font-size:1.5rem; color:#00ff41;">
-            LEVEL: <span id="level-display">1</span> | SCORE: <span id="score-display">0</span>
+        <div id="hud">
+            <div>MODE: <span id="mode-text">覇道</span></div>
+            <div>SCORE: <span id="score">0</span></div>
+            <div>BEST: <span id="best">0</span></div>
         </div>
-        <div id="question" style="font-size: 2rem; color: #bdc3c7;">願いましては〜！</div>
-        <div id="abacus-light">15 + 15</div>
-        <input type="number" id="ans-input" placeholder="答えを入力">
-        <div id="hint" style="margin-top:20px; color:#888;">[ ヒント: 脳内の算盤を見よ ]</div>
+
+        <div id="question-label" style="color:#888;">願いましては〜！</div>
+        <div id="question-display">---</div>
+        <input type="number" id="input-area" pattern="\d*" inputmode="numeric" placeholder="?">
+        
+        <div id="hint-box">...</div>
+
+        <div class="skill-container">
+            <button class="skill-btn" onclick="useSkill('india')">🇮🇳 ヴェーダ</button>
+            <button class="skill-btn" onclick="useSkill('samurai')">🇯🇵 五だま一閃</button>
+            <button class="skill-btn" onclick="useSkill('se')">💻 デバッグ</button>
+        </div>
     </div>
 
-    <script>
-        function goToGame() {
-            // オープニングを消してゲームを表示
-            document.getElementById('opening').classList.add('fade-out');
-            setTimeout(() => {
-                document.getElementById('opening').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'flex';
-                document.getElementById('ans-input').focus();
-            }, 1000);
-        }
+<script>
+let currentA, currentB, currentAns, score = 0;
+let bestScore = localStorage.getItem('abacusBest') || 0;
+document.getElementById('best').innerText = bestScore;
 
-        // ここに以前の計算ロジック（練習〜覇道モード）を組み込むことで
-        // 完璧な「算盤サーガ」が完成します！
-    </script>
+// ゲーム開始処理
+function initGame() {
+    document.getElementById('opening').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('opening').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        nextLevel();
+    }, 1000);
+}
+
+// 問題生成
+function nextLevel() {
+    const input = document.getElementById('input-area');
+    input.value = '';
+    input.focus();
+    
+    // スコアに応じて難易度上昇（終わりなき覇道モード）
+    const range = 10 + Math.floor(score / 50);
+    currentA = Math.floor(Math.random() * range) + 5;
+    currentB = Math.floor(Math.random() * range) + 5;
+    
+    // 30%の確率で掛け算
+    if (Math.random() > 0.7) {
+        currentAns = currentA * currentB;
+        document.getElementById('question-display').innerText = `${currentA} × ${currentB}`;
+    } else {
+        currentAns = currentA + currentB;
+        document.getElementById('question-display').innerText = `${currentA} + ${currentB}`;
+    }
+}
+
+// 解答入力イベント
+document.getElementById('input-area').addEventListener('keyup', (e) => {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+        checkAnswer();
+    }
+});
+
+function checkAnswer() {
+    const userVal = parseInt(document.getElementById('input-area').value);
+    if (userVal === currentAns) {
+        score += 100;
+        document.getElementById('score').innerText = score;
+        if (score > bestScore) {
+            bestScore = score;
+            localStorage.setItem('abacusBest', bestScore);
+            document.getElementById('best').innerText = bestScore;
+        }
+        document.getElementById('hint-box').innerText = "ご名算！パチパチパチ！";
+        nextLevel();
+    } else {
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 300);
+        document.getElementById('hint-box').innerText = "おっと、桁違いでございます！";
+    }
+}
+
+// 三賢者のヒント機能
+function useSkill(type) {
+    const box = document.getElementById('hint-box');
+    if (type === 'india') box.innerText = `🇮🇳「${currentA}を10と${currentA-10}に分けて…」`;
+    if (type === 'samurai') {
+        document.body.classList.add('flash');
+        setTimeout(() => document.body.classList.remove('flash'), 100);
+        box.innerText = `🇯🇵「五だまの残像が見えたぞ！」`;
+    }
+    if (type === 'se') box.innerText = `💻「下1桁は ${currentAns % 10} と出ている。」`;
+}
+
+// 傾きセンサー（ご破算）の実装
+let lastUpdate = 0;
+if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', (e) => {
+        const acc = e.accelerationIncludingGravity;
+        const curTime = new Date().getTime();
+        if ((curTime - lastUpdate) > 100) {
+            const speed = Math.abs(acc.x + acc.y + acc.z);
+            if (speed > 25) { // 強く振った時
+                document.getElementById('input-area').value = '';
+                document.getElementById('hint-box').innerText = "パチーン！ご破算でございます！";
+                if (navigator.vibrate) navigator.vibrate(200);
+            }
+            lastUpdate = curTime;
+        }
+    });
+}
+</script>
 </body>
 </html>
