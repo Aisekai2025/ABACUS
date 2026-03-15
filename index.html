@@ -94,16 +94,38 @@
 <!-- 解説モーダル -->
 <div id="tutorial-modal">
  <div class="modal-content">
-   <h2 style="color:var(--gold); border-bottom: 2px solid var(--gold);">そろばんの基本</h2>
-   <p><strong>● 珠（たま）の数え方</strong><br>
-   ・上の珠（五珠）: 1つで「5」<br>
-   ・下の珠（一珠）: 1つで「1」</p>
-   <p><strong>● 計算のコツ</strong><br>
-   足せない時は「ペア」を考えよう！<br>
-   例：3足せない → 5を足して2引く</p>
-   <button style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:bold; border-radius:8px; font-size: 1.1rem; margin-top:20px;" onclick="toggleTutorial(false)">閉じる</button>
+   <h2 style="color:var(--gold); border-bottom: 2px solid var(--gold); margin-top:0;">そろばんの仕組み</h2>
+   
+   <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; margin-bottom:15px;">
+     <p style="margin:0;"><strong>● 基本の数え方</strong><br>
+     ・上の珠（五珠）: 1つで「5」<br>
+     ・下の珠（一珠）: 1つで「1」<br>
+     ・中心の棒に近づけると数字になります。</p>
+   </div>
+
+   <h3 style="color:var(--sky); font-size:1.1rem; margin-bottom:5px;">🧮 四則計算のコツ</h3>
+   
+   <p style="font-size:0.9rem; margin-bottom:15px;">
+     <strong>【足し算・引き算】</strong><br>
+     足りない時は「ペア」を使います。<br>
+     例：8足したいけど足りない → 10を足して2引く！
+   </p>
+
+   <p style="font-size:0.9rem; margin-bottom:15px;">
+     <strong>【掛け算 (×)】九九を置くだけ！</strong><br>
+     「23 × 3」なら、十の位に「2×3=06」、一の位に「3×3=09」と、九九の答えを順番に<strong>足していく</strong>だけです。
+   </p>
+
+   <p style="font-size:0.9rem; margin-bottom:20px;">
+     <strong>【割り算 (÷)】引き算の繰り返し！</strong><br>
+     「12 ÷ 3」なら、12から3が何回引けるか探します。<br>
+     「3×4=12」なので、4を立てて、元の12から九九の答えを<strong>引く</strong>と、残りが0（正解）になります。
+   </p>
+
+   <button style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:bold; border-radius:8px; font-size: 1.1rem;" onclick="toggleTutorial(false)">修行に戻る！</button>
  </div>
 </div>
+
 
 <script>
 // ロジック部分は変更なし
