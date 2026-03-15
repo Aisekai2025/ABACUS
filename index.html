@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ABACUS: CHAMPION OF THE WORLD</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; overflow: hidden; }
+        
+        /* オープニング画面：画像の世界観を再現 */
+        #opening {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('YOUR_IMAGE_https://lens.usercontent.google.com/banana?agsi=CmdnbG9iYWw6OjAwMDA1NWNmZWM3MDAyNmQ6MDAwMDAwZWI6MTo4MzJhMzEzNmMzNTZkN2IzOjAwMDA1NWNmZWM3MDAyNmQ6MDAwMDAxNzMyMzcwMzM2ODowMDA2NGNmMzk1YjA0NGJmEAI=URL'); /* ここに生成した画像をセット */
+            background-size: cover; background-position: center;
+            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+            padding-bottom: 100px; transition: opacity 1s;
+        }
+
+        #start-btn {
+            background: #f39c12; color: #fff; border: 4px solid #fff; padding: 20px 40px;
+            font-size: 2rem; font-weight: bold; cursor: pointer; text-shadow: 2px 2px #000;
+            box-shadow: 0 0 20px #f39c12; border-radius: 10px; animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* ゲーム本編：サイバー算盤道場 */
+        #game-screen {
+            display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center;
+            background: radial-gradient(circle, #1a1a1a, #000);
+        }
+
+        #abacus-light { font-size: 5rem; color: #f1c40f; text-shadow: 0 0 30px #f1c40f; margin-bottom: 30px; }
+        input { font-size: 3rem; background: transparent; border: none; border-bottom: 3px solid #f1c40f; color: #fff; text-align: center; outline: none; width: 300px; }
+        
+        /* 演出用 */
+        .fade-out { opacity: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <!-- オープニングセクション -->
+    <div id="opening">
+        <h1 style="font-size: 4rem; color: #f39c12; text-shadow: 3px 3px #000;">ABACUS</h1>
+        <p style="font-size: 1.5rem; margin-bottom: 30px;">CHAMPION OF THE WORLD</p>
+        <button id="start-btn" onclick="goToGame()">START YOUR PATH</button>
+    </div>
+
+    <!-- ゲーム本編セクション -->
+    <div id="game-screen">
+        <div id="status-bar" style="position:absolute; top:20px; font-size:1.5rem; color:#00ff41;">
+            LEVEL: <span id="level-display">1</span> | SCORE: <span id="score-display">0</span>
+        </div>
+        <div id="question" style="font-size: 2rem; color: #bdc3c7;">願いましては〜！</div>
+        <div id="abacus-light">15 + 15</div>
+        <input type="number" id="ans-input" placeholder="答えを入力">
+        <div id="hint" style="margin-top:20px; color:#888;">[ ヒント: 脳内の算盤を見よ ]</div>
+    </div>
+
+    <script>
+        function goToGame() {
+            // オープニングを消してゲームを表示
+            document.getElementById('opening').classList.add('fade-out');
+            setTimeout(() => {
+                document.getElementById('opening').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'flex';
+                document.getElementById('ans-input').focus();
+            }, 1000);
+        }
+
+        // ここに以前の計算ロジック（練習〜覇道モード）を組み込むことで
+        // 完璧な「算盤サーガ」が完成します！
+    </script>
+</body>
+</html>
