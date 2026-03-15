@@ -3,89 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ABACUS: CHAMPION OF THE WORLD - 2D Edition</title>
+<title>ABACUS: CHAMPION - Tutorial Edition</title>
 <style>
  :root { --gold: #f1c40f; --neon-green: #00ff41; --bg-dark: #0a0a0a; --crimson: #e74c3c; }
  body { margin: 0; background: var(--bg-dark); color: #fff; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; overflow: hidden; }
  
- #opening { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('abacus.png'); background-size: cover; background-position: center; transition: opacity 1s; padding-bottom: 10vh; }
- #title-logo { font-size: 2rem; color: var(--gold); text-shadow: 0 0 20px var(--gold); margin-bottom: 20px; text-align: center; font-weight: bold; }
+ #opening { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('abacus.png'); background-size: cover; background-position: center; transition: opacity 1s; }
+ #title-logo { font-size: 2rem; color: var(--gold); text-shadow: 0 0 20px var(--gold); margin-bottom: 30px; text-align: center; font-weight: bold; }
  
- .menu-container { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; width: 95%; max-width: 600px; }
- .mode-btn { background: rgba(230, 126, 34, 0.9); color: #fff; border: 2px solid #fff; padding: 12px 10px; font-size: 0.9rem; font-weight: bold; cursor: pointer; border-radius: 8px; flex: 1; min-width: 80px; transition: 0.2s; }
- .mode-btn:hover { background: #f39c12; transform: translateY(-3px); }
- .mode-btn.hadou { background: var(--crimson); box-shadow: 0 0 15px var(--crimson); }
+ .menu-container { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 90%; max-width: 400px; }
+ .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+ .mode-btn { background: rgba(230, 126, 34, 0.9); color: #fff; border: 2px solid #fff; padding: 15px; font-size: 1rem; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+ .mode-btn.how-to { background: #3498db; width: 100%; grid-column: span 2; }
+ .mode-btn.hadou { background: var(--crimson); grid-column: span 2; box-shadow: 0 0 15px var(--crimson); }
 
  #game-screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; position: relative; }
- #hud { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1rem; color: var(--neon-green); }
- 
- /* 追加：戻るボタン */
- .exit-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: 1px solid #fff; color: #fff; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 100; font-size: 0.8rem; }
+ .top-nav { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; }
+ .nav-btn { background: rgba(255,255,255,0.2); border: 1px solid #fff; color: #fff; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
 
- #question-display { font-size: 3.5rem; color: var(--gold); text-shadow: 0 0 25px var(--gold); margin: 10px 0; font-family: 'Courier New', monospace; }
+ /* 解説モーダルのスタイル */
+ #tutorial-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+ .modal-content { max-width: 500px; margin: 0 auto; line-height: 1.6; }
+ .modal-content h2 { color: var(--gold); border-bottom: 2px solid var(--gold); }
+ .tutorial-section { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+ .close-modal { background: var(--gold); color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 20px; }
+
+ #question-display { font-size: 3.5rem; color: var(--gold); text-shadow: 0 0 25px var(--gold); margin: 10px 0; }
  #abacus-canvas-container { position:relative; width:350px; height:220px; background:#4a2c1a; border:8px solid #2d1b10; border-radius:10px; margin:10px auto; touch-action:none; }
- 
- .ans-btn { background: var(--gold); color: #000; font-weight: bold; padding: 15px 40px; font-size: 1.5rem; border: none; border-radius: 50px; margin: 10px; cursor: pointer; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); }
- .skill-container { display: flex; gap: 10px; margin-top: 5px; }
- .skill-btn { background: #333; border: 1px solid var(--gold); color: var(--gold); padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
- 
- @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(10px,0); } 75% { transform: translate(-10px,0); } }
- .shake { animation: shake 0.3s; }
+ .ans-btn { background: var(--gold); color: #000; font-weight: bold; padding: 15px 60px; font-size: 1.5rem; border: none; border-radius: 50px; margin: 15px; cursor: pointer; }
+ .hint-box { height:60px; text-align:center; color:#fff; font-weight:bold; padding: 0 20px; }
 </style>
 </head>
 <body>
 
+<!-- オープニング画面 -->
 <div id="opening">
- <div id="title-logo">ABACUS:<br>CHAMPION OF THE WORLD</div>
+ <div id="title-logo">ABACUS:<br>CHAMPION</div>
  <div class="menu-container">
+ <div class="mode-grid">
+ <button class="mode-btn how-to" onclick="toggleTutorial(true)">📖 遊び方・基本解説</button>
  <button class="mode-btn" onclick="initGame('practice')">練習</button>
  <button class="mode-btn" onclick="initGame('beginner')">初級</button>
- <button class="mode-btn" onclick="initGame('advanced')">上級</button>
- <button class="mode-btn hadou" onclick="initGame('hadou')">覇道</button>
+ <button class="mode-btn hadou" onclick="initGame('hadou')">覇道 (エンドレス)</button>
+ </div>
  </div>
 </div>
 
+<!-- ゲーム画面 -->
 <div id="game-screen">
- <button class="exit-btn" onclick="exitToTop()">TOPへ戻る</button>
- <div id="hud">
- <div>SCORE: <span id="score">0</span></div>
- <div id="counter-label">問: <span id="q-count">0</span></div>
- <div>BEST: <span id="best">0</span></div>
+ <div class="top-nav">
+ <button class="nav-btn" onclick="toggleTutorial(true)">？</button>
+ <button class="nav-btn" onclick="exitToTop()">TOP</button>
  </div>
- <div id="question-label" style="color:#888;">願いましては〜!</div>
  <div id="question-display">---</div>
- 
  <div id="abacus-canvas-container">
  <div style="position:absolute; top:65px; width:100%; height:8px; background:#2d1b10;"></div>
  <canvas id="abacus-canvas" width="350" height="220"></canvas>
  </div>
- <div id="hint-box" style="height:50px; text-align:center; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 0 10px;">玉を弾いて答えを作れ!</div>
+ <div id="hint-box" class="hint-box">珠を弾いて答えを作れ!</div>
  <button class="ans-btn" onclick="checkAnswer()">ご名算!</button>
- 
- <div class="skill-container">
- <button class="skill-btn" onclick="useSkill('digit_hint')">具体的なヒント</button>
- <button class="skill-btn" onclick="useSkill('samurai')">ご破算</button>
+</div>
+
+<!-- 解説モーダル -->
+<div id="tutorial-modal">
+ <div class="modal-content">
+ <h2>そろばんの基本</h2>
+ <div class="tutorial-section">
+ <h3>● 珠（たま）の読み方</h3>
+ <ul>
+ <li><strong>上の珠（五珠）</strong>: 1つで「5」を表します。</li>
+ <li><strong>下の珠（一珠）</strong>: 1つで「1」を表します。</li>
+ <li>中央の横棒に近づけると「足した」ことになります。</li>
+ </ul>
+ </div>
+ <div class="tutorial-section">
+ <h3>● 計算のヒント（補数）</h3>
+ <p>5や10を作る「ペア」を覚えるのがコツです！</p>
+ <ul>
+ <li><strong>「5」になるペア</strong>: (1と4), (2と3)</li>
+ <small>例：3を足したいけど下の珠が足りない時 → 5を下げてから2を引く！</small>
+ <li><strong>「10」になるペア</strong>: (1と9), (2と8), (3と7), (4と6), (5と5)</li>
+ <small>例：7を足したいけど足りない時 → 10を足してから3を引く！</small>
+ </ul>
+ </div>
+ <button class="close-modal" onclick="toggleTutorial(false)">わかった！</button>
  </div>
 </div>
 
 <script>
-let currentA, currentB, currentAns, score = 0, beads = [], currentMode = '';
-let qTotal = 0, qCurrent = 0;
+// 基本変数はそのまま保持
+let currentAns, score = 0, beads = [], currentMode = '', qTotal = 0, qCurrent = 0;
 const canvas = document.getElementById('abacus-canvas');
 const ctx = canvas.getContext('2d');
-let bestScore = localStorage.getItem('abacusBest') || 0;
-document.getElementById('best').innerText = bestScore;
+
+function toggleTutorial(show) {
+ document.getElementById('tutorial-modal').style.display = show ? 'block' : 'none';
+}
+
+function exitToTop() {
+ if(confirm("トップに戻りますか？")) location.reload();
+}
 
 function initGame(mode) {
  currentMode = mode;
- score = 0;
- qCurrent = 1;
- if (mode === 'practice') qTotal = 5;
- else if (mode === 'beginner') qTotal = 10;
- else if (mode === 'advanced') qTotal = 20;
- else qTotal = Infinity;
- 
- updateHUD();
+ qTotal = (mode === 'practice') ? 5 : (mode === 'beginner') ? 10 : Infinity;
  document.getElementById('opening').style.display = 'none';
  document.getElementById('game-screen').style.display = 'flex';
  initBeads();
@@ -93,23 +114,7 @@ function initGame(mode) {
  nextLevel();
 }
 
-// 追加：トップへ戻る処理
-function exitToTop() {
- if(confirm("中断してトップに戻りますか？")) {
- location.reload();
- }
-}
-
-function updateHUD() {
- document.getElementById('score').innerText = score;
- const counterLabel = document.getElementById('counter-label');
- if (currentMode === 'hadou') {
- counterLabel.innerHTML = `第 <span id="q-count">${qCurrent}</span> 問`;
- } else {
- counterLabel.innerHTML = `残り: <span id="q-count">${qTotal - qCurrent + 1}</span> 問`;
- }
-}
-
+// 珠の初期化・描画・操作ロジック（前回のコードを継承）
 function initBeads() {
  beads = [];
  for(let i=0; i<7; i++) {
@@ -126,19 +131,15 @@ function drawLoop() {
  ctx.clearRect(0, 0, canvas.width, canvas.height);
  beads.forEach(b => {
  ctx.fillStyle = b.active ? '#f1c40f' : '#d35400';
- ctx.beginPath();
- ctx.ellipse(b.x, b.y, 20, 12, 0, 0, Math.PI * 2);
- ctx.fill();
- ctx.strokeStyle = '#2d1b10';
- ctx.stroke();
+ ctx.beginPath(); ctx.ellipse(b.x, b.y, 20, 12, 0, 0, Math.PI * 2); ctx.fill();
+ ctx.strokeStyle = '#2d1b10'; ctx.stroke();
  });
  requestAnimationFrame(drawLoop);
 }
 
 canvas.addEventListener('pointerdown', (e) => {
  const rect = canvas.getBoundingClientRect();
- const tx = e.clientX - rect.left;
- const ty = e.clientY - rect.top;
+ const tx = e.clientX - rect.left; const ty = e.clientY - rect.top;
  beads.forEach(b => {
  if (Math.hypot(b.x - tx, b.y - ty) < 25) {
  b.active = !b.active;
@@ -147,72 +148,27 @@ canvas.addEventListener('pointerdown', (e) => {
  });
 });
 
-function calculateCurrentValue() {
+function calculateValue() {
  return beads.filter(b => b.active).reduce((sum, b) => sum + (b.val * b.digit), 0);
 }
 
 function nextLevel() {
- let range = (currentMode === 'practice') ? 5 : (currentMode === 'advanced') ? 50 : 10;
- if (currentMode === 'hadou') range = 10 + Math.floor(score/50);
- 
- currentA = Math.floor(Math.random() * range) + 2;
- currentB = Math.floor(Math.random() * range) + 2;
- 
- if ((currentMode === 'advanced' || currentMode === 'hadou') && Math.random() > 0.5) {
- currentAns = currentA * currentB;
- document.getElementById('question-display').innerText = `${currentA} × ${currentB}`;
- } else {
- currentAns = currentA + currentB;
- document.getElementById('question-display').innerText = `${currentA} + ${currentB}`;
- }
- document.getElementById('hint-box').innerText = "玉を弾いて答えを作れ!";
- resetAbacus(false);
- updateHUD();
+ let range = (currentMode === 'practice') ? 5 : 15;
+ let a = Math.floor(Math.random() * range) + 1;
+ let b = Math.floor(Math.random() * range) + 1;
+ currentAns = a + b;
+ document.getElementById('question-display').innerText = `${a} + ${b}`;
+ document.getElementById('hint-box').innerText = "珠を弾いて答えを作れ!";
+ beads.forEach(b => { b.active = false; b.y = (b.type === 'top') ? 25 : (100 + b.id * 28); });
 }
 
 function checkAnswer() {
- if (calculateCurrentValue() === currentAns) {
- score += 100;
- document.getElementById('hint-box').innerText = "ご名算!";
- if (qCurrent >= qTotal && currentMode !== 'hadou') {
- alert(`全問クリア！スコア: ${score}`);
- location.reload();
+ if (calculateValue() === currentAns) {
+ document.getElementById('hint-box').innerText = "ご名算！";
+ setTimeout(nextLevel, 1000);
  } else {
- qCurrent++;
- setTimeout(nextLevel, 800);
+ document.getElementById('hint-box').innerText = "違いますぞ！\n（？ボタンでルールを確認！）";
  }
- } else {
- if (currentMode === 'hadou') {
- alert(`修行足りませぬ！最終スコア: ${score}`);
- location.reload();
- } else {
- document.body.classList.add('shake');
- setTimeout(() => document.body.classList.remove('shake'), 300);
- document.getElementById('hint-box').innerText = "違いますぞ！";
- }
- }
-}
-
-function resetAbacus(withEffect = true) {
- beads.forEach(b => {
- b.active = false;
- b.y = (b.type === 'top') ? 25 : (100 + b.id * 28);
- });
-}
-
-function useSkill(type) {
- const box = document.getElementById('hint-box');
- if (type === 'digit_hint') {
- // 具体的なヒント：桁ごとの数字を教える
- let ones = currentAns % 10;
- let tens = Math.floor((currentAns % 100) / 10);
- if (currentAns >= 10) {
- box.innerText = `ヒント: 十の位は「${tens}」、一の位は「${ones}」ですぞ！`;
- } else {
- box.innerText = `ヒント: 答えは「${ones}」ですぞ！`;
- }
- }
- if (type === 'samurai') { resetAbacus(); box.innerText = `ご破算！`; }
 }
 </script>
 </body>
