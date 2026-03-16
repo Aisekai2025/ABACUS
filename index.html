@@ -37,7 +37,7 @@
     #tutorial-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; overflow-y: auto; padding: 25px; box-sizing: border-box; }
     .modal-content { max-width: 500px; margin: 0 auto; line-height: 1.8; padding-bottom: 40px; }
     
-    #question-display { font-size: 4rem; color: var(--gold); text-shadow: 0 0 25px var(--gold); margin: 10px 0; font-family: 'Courier New', monospace; }
+    #question-display { font-size: 4rem; color: var(--gold); text-shadow: 0 0 25px var(--gold); margin: 10px 0; font-family: 'Courier New', monospace; letter-spacing: 2px;}
     
     #abacus-canvas-container { position: relative; width: 350px; height: 220px; background: #4a2c1a; border: 8px solid #2d1b10; border-radius: 10px; margin: 10px auto; touch-action: none; }
     
@@ -45,7 +45,7 @@
     .ans-btn:active { transform: scale(0.95); }
     .ans-btn:disabled { background: #555; color: #888; cursor: not-allowed; box-shadow: none; }
     
-    .hint-box { height: 60px; text-align: center; color: #fff; font-weight: bold; font-size: 1.1rem; padding: 0 15px; display: flex; align-items: center; justify-content: center;}
+    .hint-box { height: 60px; text-align: center; color: #fff; font-weight: bold; font-size: 1.1rem; padding: 0 15px; display: flex; align-items: center; justify-content: center; line-height: 1.4;}
 </style>
 </head>
 <body>
@@ -54,9 +54,9 @@
     <div class="menu-area">
         <div class="menu-container">
             <button class="mode-btn how-to" onclick="toggleTutorial(true)">はじめてのそろばん</button>
-            <button class="mode-btn" onclick="initGame('practice')">練習 (5問)</button>
-            <button class="mode-btn" onclick="initGame('beginner')">初級 (10問)</button>
-            <button class="mode-btn hadou" onclick="initGame('hadou')">覇道 (無限)</button>
+            <button class="mode-btn" onclick="initGame('practice')">練習 (基礎8問)</button>
+            <button class="mode-btn" onclick="initGame('beginner')">初級 (2桁10問)</button>
+            <button class="mode-btn hadou" onclick="initGame('hadou')">覇道 (無限・ランダム)</button>
         </div>
     </div>
 </div>
@@ -96,9 +96,10 @@
         <h3 style="color:var(--sky); font-size:1.1rem; margin-bottom:5px;">四則計算のコツ</h3>
         <p style="font-size:0.95rem; margin-bottom:10px; background:rgba(52, 152, 219, 0.1); padding:10px; border-radius:8px;">
             <strong>【足し算・引き算】 ペア（補数）を使う！</strong><br>
-            そのまま足せない時は、5や10を作る「ペア」を考えます。<br>
+            そのまま計算できない時は、5や10を作る「ペア」を考えます。<br>
             ・「4」足せない時 → 5を足して、1を引く！<br>
-            ・「8」足せない時 → 10を足して、2を引く！
+            ・「8」足せない時 → 10を足して、2を引く！<br>
+            ・「3」引けない時 → 2を足して、5を引く！
         </p>
 
         <p style="font-size:0.95rem; margin-bottom:10px; background:rgba(241, 196, 15, 0.1); padding:10px; border-radius:8px;">
@@ -124,6 +125,7 @@ let currentMode = '';
 let qTotal = 0;
 let qCurrent = 1;
 let currentA = 0, currentB = 0;
+let currentOp = '+';
 let isProcessing = false;
 
 const canvas = document.getElementById('abacus-canvas');
@@ -137,7 +139,8 @@ function exitToTop() { if(confirm("中断してトップに戻りますか？"))
 function initGame(mode) {
     currentMode = mode;
     qCurrent = 1;
-    qTotal = (mode === 'practice') ? 5 : (mode === 'beginner') ? 10 : Infinity;
+    // 練習:8問(四則各2問)、初級:10問、覇道:無限
+    qTotal = (mode === 'practice') ? 8 : (mode === 'beginner') ? 10 : Infinity;
     isProcessing = false;
     
     document.getElementById('opening').style.display = 'none';
@@ -197,7 +200,7 @@ function gohasan() {
     
     setTimeout(() => {
         if (!isProcessing) {
-            hintBox.innerText = generateHint(currentA, currentB);
+            hintBox.innerText = generateHint(currentA, currentB, currentOp);
             hintBox.style.color = "#fff";
         }
     }, 1000);
@@ -215,11 +218,20 @@ function updateStatusBar() {
     }
 }
 
-function generateHint(a, b) {
+function generateHint(a, b, op) {
     if (currentMode === 'practice') {
-        if (a + b < 5) return `ヒント: そのまま一の位に「${b}」を足しましょう！`;
-        if (a < 5 && a + b >= 5 && a + b < 10) return `ヒント: 5の珠の出番！「5を足して、${5 - b}を引く」`;
-        if (a + b >= 10) return `ヒント: 10への繰り上がり！「10を足して、${10 - b}を引く」`;
+        if (op === '+') {
+            if (a + b < 5) return `【足し算】そのまま一の位に「${b}」を足しましょう！`;
+            if (a < 5 && a + b >= 5 && a + b < 10) return `【足し算】5の珠の出番！「5を足して、${5 - b}を引く」`;
+            if (a + b >= 10) return `【足し算】10への繰り上がり！「10を足して、${10 - b}を引く」`;
+        } else if (op === '-') {
+            if (a >= 5 && a - b < 5) return `【引き算】5の珠を戻す！「${5 - b}を足して、5を引く」`;
+            return `【引き算】大きい数から小さい数を引いてみよう！`;
+        } else if (op === '×') {
+            return `【掛け算】九九の答え「${a * b}」を盤面に置くだけ！`;
+        } else if (op === '÷') {
+            return `【割り算】${a}の中に${b}はいくつある？九九を思い出して！`;
+        }
     }
     return "左（上の位）から右へ、順に計算しましょう。";
 }
@@ -230,17 +242,73 @@ function nextLevel() {
         location.reload();
         return;
     }
-
     updateStatusBar();
 
-    // 練習モードは繰り上がりの練習のため1〜9、その他は少し難しく
-    let range = (currentMode === 'practice') ? 8 : 15;
-    currentA = Math.floor(Math.random() * range) + 1;
-    currentB = Math.floor(Math.random() * range) + 1;
-    currentAns = currentA + currentB;
+    if (currentMode === 'practice') {
+        // 練習モード: 四則演算を2問ずつ順番に出題
+        if (qCurrent <= 2) {
+            currentOp = '+';
+            currentA = Math.floor(Math.random() * 8) + 1; // 1〜8
+            currentB = Math.floor(Math.random() * 8) + 1; // 1〜8
+            currentAns = currentA + currentB;
+        } else if (qCurrent <= 4) {
+            currentOp = '-';
+            currentA = Math.floor(Math.random() * 8) + 2; // 2〜9
+            currentB = Math.floor(Math.random() * (currentA - 1)) + 1; // 確実に引ける数
+            currentAns = currentA - currentB;
+        } else if (qCurrent <= 6) {
+            currentOp = '×';
+            currentA = Math.floor(Math.random() * 8) + 2; // 2〜9
+            currentB = Math.floor(Math.random() * 8) + 2; // 2〜9
+            currentAns = currentA * currentB;
+        } else {
+            currentOp = '÷';
+            currentB = Math.floor(Math.random() * 8) + 2; // 2〜9
+            currentAns = Math.floor(Math.random() * 8) + 2; // 答えも2〜9
+            currentA = currentB * currentAns; // 割り切れる数を作成
+        }
+
+    } else if (currentMode === 'beginner') {
+        // 初級モード: 2桁の足し算・引き算
+        currentOp = Math.random() < 0.5 ? '+' : '-';
+        if (currentOp === '+') {
+            currentA = Math.floor(Math.random() * 90) + 10; // 10〜99
+            currentB = Math.floor(Math.random() * 90) + 10; // 10〜99
+            currentAns = currentA + currentB;
+        } else {
+            currentA = Math.floor(Math.random() * 80) + 20; // 20〜99
+            currentB = Math.floor(Math.random() * (currentA - 10)) + 10; // 結果が正になる2桁
+            currentAns = currentA - currentB;
+        }
+
+    } else if (currentMode === 'hadou') {
+        // 覇道モード: 四則演算ランダム（問題が進むと少し難しくなる）
+        const ops = ['+', '-', '×', '÷'];
+        currentOp = ops[Math.floor(Math.random() * ops.length)];
+        let diff = Math.floor(qCurrent / 5); // 5問ごとに難易度微増
+
+        if (currentOp === '+') {
+            currentA = Math.floor(Math.random() * (90 + diff * 10)) + 10;
+            currentB = Math.floor(Math.random() * (90 + diff * 10)) + 10;
+            currentAns = currentA + currentB;
+        } else if (currentOp === '-') {
+            currentA = Math.floor(Math.random() * (90 + diff * 10)) + 20;
+            currentB = Math.floor(Math.random() * (currentA - 10)) + 10;
+            currentAns = currentA - currentB;
+        } else if (currentOp === '×') {
+            currentA = Math.floor(Math.random() * (8 + diff)) + 2;
+            currentB = Math.floor(Math.random() * (8 + diff)) + 2;
+            currentAns = currentA * currentB;
+        } else {
+            currentB = Math.floor(Math.random() * (8 + diff)) + 2;
+            currentAns = Math.floor(Math.random() * (8 + diff)) + 2;
+            currentA = currentB * currentAns;
+        }
+    }
     
-    document.getElementById('question-display').innerText = `${currentA} + ${currentB}`;
-    hintBox.innerText = generateHint(currentA, currentB);
+    // 画面表示の更新
+    document.getElementById('question-display').innerText = `${currentA} ${currentOp} ${currentB}`;
+    hintBox.innerText = generateHint(currentA, currentB, currentOp);
     
     beads.forEach(b => { b.active = false; b.y = (b.type === 'top') ? 25 : (100 + b.id * 28); });
     
