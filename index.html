@@ -28,7 +28,6 @@
     
     #game-screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; position: relative; }
     
-    /* 上部ナビゲーション周りの調整 */
     .top-nav { position: absolute; top: 15px; width: 90%; display: flex; justify-content: space-between; z-index: 10; }
     .nav-group { display: flex; gap: 10px; }
     .nav-btn { background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; }
@@ -37,6 +36,7 @@
     #status-bar { font-size: 1.2rem; font-weight: bold; color: var(--emerald); margin-top: 50px; text-shadow: 0 0 10px rgba(46, 204, 113, 0.5); }
     #tutorial-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; overflow-y: auto; padding: 25px; box-sizing: border-box; }
     .modal-content { max-width: 500px; margin: 0 auto; line-height: 1.8; padding-bottom: 40px; }
+    
     #question-display { font-size: 4rem; color: var(--gold); text-shadow: 0 0 25px var(--gold); margin: 10px 0; font-family: 'Courier New', monospace; }
     
     #abacus-canvas-container { position: relative; width: 350px; height: 220px; background: #4a2c1a; border: 8px solid #2d1b10; border-radius: 10px; margin: 10px auto; touch-action: none; }
@@ -44,6 +44,7 @@
     .ans-btn { background: var(--gold); color: #000; font-weight: bold; padding: 15px 70px; font-size: 1.6rem; border: none; border-radius: 50px; margin: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(241, 196, 15, 0.4); transition: 0.2s;}
     .ans-btn:active { transform: scale(0.95); }
     .ans-btn:disabled { background: #555; color: #888; cursor: not-allowed; box-shadow: none; }
+    
     .hint-box { height: 60px; text-align: center; color: #fff; font-weight: bold; font-size: 1.1rem; padding: 0 15px; display: flex; align-items: center; justify-content: center;}
 </style>
 </head>
@@ -85,28 +86,31 @@
     <div class="modal-content">
         <h2 style="color:var(--gold); border-bottom: 2px solid var(--gold); margin-top:0;">そろばんの仕組み</h2>
         <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:8px; margin-bottom:15px;">
-            <p style="margin:0;"><strong>● 基本の数え方</strong><br>
+            <p style="margin:0;"><strong>● 基本の数え方と動かし方</strong><br>
             ・上の珠（五珠）: 1つで「5」<br>
             ・下の珠（一珠）: 1つで「1」<br>
-            ・珠を<strong>中心の横棒（梁）に近づける</strong>と、その数が有効になります。</p>
+            ・珠を<strong>中心の横棒（梁）に近づける</strong>と数が有効になります。<br>
+            ・★重要★：計算は常に<strong>「左から右（大きい位から小さい位）」</strong>へ行います！</p>
         </div>
         
         <h3 style="color:var(--sky); font-size:1.1rem; margin-bottom:5px;">四則計算のコツ</h3>
         <p style="font-size:0.95rem; margin-bottom:10px; background:rgba(52, 152, 219, 0.1); padding:10px; border-radius:8px;">
             <strong>【足し算・引き算】 ペア（補数）を使う！</strong><br>
-            足りない時は10や5を作るペアを使います。<br>
-            例：8足したいけど足りない → 10を足して2引く！
+            そのまま足せない時は、5や10を作る「ペア」を考えます。<br>
+            ・「4」足せない時 → 5を足して、1を引く！<br>
+            ・「8」足せない時 → 10を足して、2を引く！
         </p>
 
         <p style="font-size:0.95rem; margin-bottom:10px; background:rgba(241, 196, 15, 0.1); padding:10px; border-radius:8px;">
             <strong>【掛け算 (×)】 九九を置くだけ！</strong><br>
-            「23 × 3」なら、十の位に「2×3=06」、一の位に「3×3=09」と、九九の答えを順番に<strong>足していく</strong>だけです。大きな桁から計算するのが特徴です。
+            「23×3」なら、左から順に計算します。<br>
+            まず十の位に「2×3=06」を置き、次に一の位に「3×3=09」を足すだけです。
         </p>
 
         <p style="font-size:0.95rem; margin-bottom:15px; background:rgba(46, 204, 113, 0.1); padding:10px; border-radius:8px;">
             <strong>【割り算 (÷)】 引き算の繰り返し！</strong><br>
-            「12 ÷ 3」なら、12から3が何回引けるか探します。<br>
-            「3×4=12」なので、4を立てて、元の12から九九の答えを<strong>引く</strong>と、残りが0（正解）になります。
+            「12÷3」なら、左の桁から見ていきます。<br>
+            「3×4=12」なので、4を立てて、元の数から九九の答えを<strong>引く</strong>と、残りが0（正解）になります。
         </p>
 
         <button style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:bold; border-radius:8px; font-size: 1.1rem; margin-top: 10px; cursor: pointer;" onclick="toggleTutorial(false)">修行に戻る！</button>
@@ -120,7 +124,7 @@ let currentMode = '';
 let qTotal = 0;
 let qCurrent = 1;
 let currentA = 0, currentB = 0;
-let isProcessing = false; // 連打防止用のフラグ
+let isProcessing = false;
 
 const canvas = document.getElementById('abacus-canvas');
 const ctx = canvas.getContext('2d');
@@ -166,10 +170,8 @@ function drawLoop() {
     requestAnimationFrame(drawLoop);
 }
 
-// 珠の操作（処理中は操作不可にする）
 canvas.addEventListener('pointerdown', (e) => {
     if (isProcessing) return; 
-    
     const rect = canvas.getBoundingClientRect();
     const tx = e.clientX - rect.left; 
     const ty = e.clientY - rect.top;
@@ -184,19 +186,15 @@ canvas.addEventListener('pointerdown', (e) => {
 
 function calculateValue() { return beads.filter(b => b.active).reduce((sum, b) => sum + (b.val * b.digit), 0); }
 
-// ご破算（リセット）機能
 function gohasan() {
     if (isProcessing) return;
-    
     beads.forEach(b => { 
         b.active = false; 
         b.y = (b.type === 'top') ? 25 : (100 + b.id * 28); 
     });
-    
     hintBox.innerText = "ご破算で願いましては！";
     hintBox.style.color = "var(--sky)";
     
-    // 少し待ってから元のヒントに戻す
     setTimeout(() => {
         if (!isProcessing) {
             hintBox.innerText = generateHint(currentA, currentB);
@@ -208,21 +206,22 @@ function gohasan() {
 function updateStatusBar() {
     const statusBar = document.getElementById('status-bar');
     if (currentMode === 'hadou') {
-        statusBar.innerText = `【覇道モード】 現在: ${qCurrent} 問目`;
+        statusBar.innerText = `【覇道モード】 現在: ${qCurrent}問目`;
         statusBar.style.color = "var(--crimson)";
     } else {
         const remain = qTotal - qCurrent + 1;
-        statusBar.innerText = `【${currentMode === 'practice' ? '練習' : '初級'}】 残り: ${remain} 問`;
+        statusBar.innerText = `【${currentMode === 'practice' ? '練習' : '初級'}】 残り: ${remain}問`;
         statusBar.style.color = "var(--emerald)";
     }
 }
 
 function generateHint(a, b) {
     if (currentMode === 'practice') {
-        if (a + b < 5) return `ヒント: そのまま下の珠を足してみましょう！`;
-        if (a < 5 && a + b >= 5) return `ヒント: 5の珠の出番。「5を足して、${5 - b}を引く」！`;
+        if (a + b < 5) return `ヒント: そのまま一の位に「${b}」を足しましょう！`;
+        if (a < 5 && a + b >= 5 && a + b < 10) return `ヒント: 5の珠の出番！「5を足して、${5 - b}を引く」`;
+        if (a + b >= 10) return `ヒント: 10への繰り上がり！「10を足して、${10 - b}を引く」`;
     }
-    return "計算式を見て、珠を正確に弾きましょう。";
+    return "左（上の位）から右へ、順に計算しましょう。";
 }
 
 function nextLevel() {
@@ -234,7 +233,8 @@ function nextLevel() {
 
     updateStatusBar();
 
-    let range = (currentMode === 'practice') ? 4 : 8;
+    // 練習モードは繰り上がりの練習のため1〜9、その他は少し難しく
+    let range = (currentMode === 'practice') ? 8 : 15;
     currentA = Math.floor(Math.random() * range) + 1;
     currentB = Math.floor(Math.random() * range) + 1;
     currentAns = currentA + currentB;
@@ -242,28 +242,24 @@ function nextLevel() {
     document.getElementById('question-display').innerText = `${currentA} + ${currentB}`;
     hintBox.innerText = generateHint(currentA, currentB);
     
-    // 盤面リセット
     beads.forEach(b => { b.active = false; b.y = (b.type === 'top') ? 25 : (100 + b.id * 28); });
     
-    // 入力ロック解除
     isProcessing = false;
     submitBtn.disabled = false;
 }
 
 function checkAnswer() {
-    if (isProcessing) return; // 処理中は弾く
+    if (isProcessing) return;
     
     const userAns = calculateValue();
     
     if (userAns === currentAns) {
-        // 正解演出開始（ロックをかける）
         isProcessing = true;
         submitBtn.disabled = true;
         
         hintBox.innerText = "お見事！ご名算です！";
         hintBox.style.color = "var(--gold)";
         
-        // 演出完了後に問題数を加算し、次の問題へ
         setTimeout(() => {
             qCurrent++;
             hintBox.style.color = "#fff";
